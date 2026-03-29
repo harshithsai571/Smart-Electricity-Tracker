@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Smart Electricity Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="hero">
+      <p class="eyebrow">Phase 1</p>
+      <h1>Smart Electricity Tracker</h1>
+      <p class="hero-copy">Track readings, scan your meter, understand weekly and monthly patterns, and estimate your bill in one clean dashboard.</p>
+    </header>
+
+    <section class="card" aria-labelledby="entry-title">
+      <div class="section-heading">
+        <h2 id="entry-title">Manual Meter Entry</h2>
+        <p>Add your latest electricity meter reading or scan it with your camera.</p>
+      </div>
+
+      <form id="reading-form" class="entry-form" novalidate>
+        <label class="field" for="meter-reading">
+          <span>Meter reading</span>
+          <input
+            id="meter-reading"
+            name="meterReading"
+            type="number"
+            inputmode="decimal"
+            min="0"
+            step="0.01"
+            placeholder="Enter current reading"
+            required
+          >
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" class="primary-button">Save Reading</button>
+          <button id="open-scanner" type="button" class="secondary-button">Scan Meter</button>
+        </div>
+
+        <p id="form-message" class="form-message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+
+    <section class="dashboard-shell" aria-labelledby="dashboard-title">
+      <div class="section-heading">
+        <h2 id="dashboard-title">Dashboard</h2>
+        <p>See the latest usage trends at a glance.</p>
+      </div>
+
+      <div class="overview-grid">
+        <article class="card stat-card stat-card-accent">
+          <p class="stat-label">Today Usage</p>
+          <p id="today-usage" class="stat-value">0.00 units</p>
+          <p class="stat-caption">Based on today's saved readings</p>
+        </article>
+
+        <article class="card stat-card">
+          <p class="stat-label">Last 7 Days</p>
+          <p id="weekly-usage" class="stat-value">0.00 units</p>
+          <p class="stat-caption">Rolling weekly consumption</p>
+        </article>
+
+        <article class="card stat-card">
+          <p class="stat-label">This Month</p>
+          <p id="monthly-usage" class="stat-value">0.00 units</p>
+          <p class="stat-caption">Current calendar month total</p>
+        </article>
+
+        <article class="card stat-card">
+          <p class="stat-label">Total Usage</p>
+          <p id="total-usage" class="stat-value">0.00 units</p>
+          <p class="stat-caption">All recorded usage so far</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="analytics-grid" aria-label="Analytics and export">
+      <article class="card chart-card" aria-labelledby="analytics-title">
+        <div class="chart-header">
+          <div class="section-heading compact-heading">
+            <h2 id="analytics-title">Usage Analytics</h2>
+            <p>Switch between weekly and monthly charts.</p>
+          </div>
+
+          <div class="chart-toggle-group" role="tablist" aria-label="Usage chart range">
+            <button id="week-chart-button" type="button" class="chart-toggle is-active" data-mode="week" aria-pressed="true">Week</button>
+            <button id="month-chart-button" type="button" class="chart-toggle" data-mode="month" aria-pressed="false">Month</button>
+          </div>
+        </div>
+
+        <div class="chart-frame">
+          <canvas id="usage-chart" class="usage-chart" aria-label="Usage chart" role="img"></canvas>
+          <p id="chart-empty" class="chart-empty is-hidden">Add more readings to see chart insights.</p>
+        </div>
+      </article>
+
+      <div class="utility-stack">
+        <article class="card utility-card" aria-labelledby="billing-title">
+          <div class="section-heading compact-heading">
+            <h2 id="billing-title">Bill Estimation</h2>
+            <p>Enter your electricity cost per unit to estimate bills.</p>
+          </div>
+
+          <label class="field" for="cost-per-unit">
+            <span>Cost per unit</span>
+            <input
+              id="cost-per-unit"
+              name="costPerUnit"
+              type="number"
+              inputmode="decimal"
+              min="0"
+              step="0.01"
+              placeholder="Enter cost per unit"
+            >
+          </label>
+
+          <div class="bill-grid">
+            <div class="bill-card">
+              <p class="bill-label">Estimated This Week</p>
+              <p id="weekly-bill" class="bill-value">0.00</p>
+            </div>
+
+            <div class="bill-card">
+              <p class="bill-label">Estimated This Month</p>
+              <p id="monthly-bill" class="bill-value">0.00</p>
+            </div>
+
+            <div class="bill-card">
+              <p class="bill-label">Estimated Total</p>
+              <p id="total-bill" class="bill-value">0.00</p>
+            </div>
+          </div>
+
+          <p class="bill-note">Bill values use the same currency as your cost-per-unit input.</p>
+        </article>
+
+        <article class="card utility-card" aria-labelledby="export-title">
+          <div class="section-heading compact-heading">
+            <h2 id="export-title">Export Data</h2>
+            <p>Download all saved readings as a CSV file.</p>
+          </div>
+
+          <button id="export-button" type="button" class="secondary-button">Export CSV</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="card" aria-labelledby="history-title">
+      <div class="section-heading">
+        <h2 id="history-title">Reading History</h2>
+        <p>Your saved readings and calculated usage.</p>
+      </div>
+
+      <div id="history-list" class="history-list" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <section id="scanner-modal" class="scanner-modal is-hidden" aria-hidden="true" aria-labelledby="scanner-title">
+    <div class="scanner-stage">
+      <video id="camera-preview" class="scanner-media" autoplay playsinline muted></video>
+      <img id="capture-preview" class="scanner-media is-hidden" alt="Captured meter reading preview">
+
+      <div class="scanner-overlay">
+        <div class="scanner-topbar">
+          <h2 id="scanner-title">Meter Scanner</h2>
+          <button id="close-scanner" type="button" class="ghost-button" aria-label="Close scanner">Close</button>
+        </div>
+
+        <div class="guide-shell">
+          <div id="guide-box" class="guide-box">
+            <span>Align the meter digits inside this box</span>
+          </div>
+        </div>
+
+        <div class="scanner-bottom">
+          <div id="scanner-loading" class="loading-indicator is-hidden" aria-live="polite">
+            <span class="spinner" aria-hidden="true"></span>
+            <span>Scanning reading...</span>
+          </div>
+
+          <p id="scanner-status" class="scanner-status">Hold steady, use good lighting, and keep the meter digits inside the guide box.</p>
+          <p id="ocr-result" class="ocr-result">Detected reading: <strong>--</strong></p>
+          <img id="crop-preview" class="crop-preview is-hidden" alt="Cropped meter preview used for OCR">
+
+          <div class="scanner-actions">
+            <button id="capture-button" type="button" class="primary-button">Capture</button>
+            <button id="use-reading-button" type="button" class="primary-button is-hidden" disabled>Use Reading</button>
+            <button id="retake-button" type="button" class="secondary-button is-hidden">Retake</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="update-modal" class="update-modal is-hidden" aria-hidden="true" aria-labelledby="update-title" role="dialog" aria-modal="true">
+    <div class="update-dialog">
+      <p class="update-eyebrow">Update Available</p>
+      <h2 id="update-title">A newer version of Smart Electricity Tracker is ready.</h2>
+      <p id="update-message" class="update-copy">Refresh now to get the latest app improvements.</p>
+
+      <div class="update-actions">
+        <button id="update-now-button" type="button" class="primary-button">Update Now</button>
+        <button id="update-later-button" type="button" class="secondary-button">Later</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
