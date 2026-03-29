@@ -1,4 +1,4 @@
-const APP_VERSION = "1.0.0";
+const APP_VERSION = "1.0.1";
 const STORAGE_KEY = "smart-electricity-tracker-readings";
 const COST_STORAGE_KEY = "smart-electricity-tracker-cost-per-unit";
 
